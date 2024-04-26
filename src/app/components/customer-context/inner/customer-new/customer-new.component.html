@@ -1,7 +1,8 @@
+<mat-progress-bar mode="determinate" value="{{uploadRate | async}}"></mat-progress-bar>
 <br>
 <br>
 
-<mat-progress-bar mode="determinate" value="{{uploadRate | async}}"></mat-progress-bar>
+
 
 <form [formGroup]="form" (ngSubmit)="saveCustomer()">
   <div class="container">

@@ -5,9 +5,10 @@ import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {AngularFireModule} from "@angular/fire/compat";
-import {environment} from "../environments/environment";
+import {environment} from "../environments/environment.development";
 import {AngularFireDatabaseModule} from "@angular/fire/compat/database";
 import {AngularFireStorageModule} from "@angular/fire/compat/storage";
+import {AngularFirestoreModule} from "@angular/fire/compat/firestore";
 
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes),
@@ -15,7 +16,8 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom([
       AngularFireModule.initializeApp(environment.firebaseConfig),
       AngularFireDatabaseModule,
-      AngularFireStorageModule
+      AngularFireStorageModule,
+      AngularFirestoreModule
     ]),
     provideAnimationsAsync()]
 };
