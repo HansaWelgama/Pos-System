@@ -1,5 +1,8 @@
 <br>
 <br>
+
+<mat-progress-bar mode="determinate" value="{{uploadRate | async}}"></mat-progress-bar>
+
 <form [formGroup]="form" (ngSubmit)="saveCustomer()">
   <div class="container">
     <div class="row">
@@ -31,7 +34,7 @@
 
       </div>
       <div class="col-12 col-md-4 col-lg-4 wrapper">
-        <input (change)="onchangeFile($event)" formControlName="avatar" type="file">
+        <input (change)="onChangeFile($event)" formControlName="avatar" type="file">
       </div>
       <div class="col-12 wrapper">
         <div style="display: flex; align-items: center; justify-content: flex-end; margin-top:20px">
