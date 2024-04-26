@@ -7,6 +7,7 @@ import {AngularFireStorage} from "@angular/fire/compat/storage";
 import {finalize, Observable} from "rxjs";
 import {MatProgressBar} from "@angular/material/progress-bar";
 import {AsyncPipe} from "@angular/common";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-customer-new',
@@ -25,7 +26,7 @@ import {AsyncPipe} from "@angular/common";
 })
 export class CustomerNewComponent {
 
-  constructor(private storage:AngularFireStorage) {
+  constructor(private storage:AngularFireStorage, private snackbarService: MatSnackBar) {
   }
 
   loading:boolean=false;
@@ -44,10 +45,10 @@ export class CustomerNewComponent {
   })
 
   saveCustomer() {
-
+    this.loading=true;
     const path='avatar/'+this.form.value.fullName+'/'+this.selectedAvatar.name;
     const fileRef = this.storage.ref(path);
-    const task = this.storage.upload(path,this.selectedAvatar)
+    const task = this.storage.upload(path,this.selectedAvatar);
 
     this.uploadRate = task.percentageChanges();
 
@@ -58,9 +59,17 @@ export class CustomerNewComponent {
     ).subscribe();
 
     task.then(()=>{
-      console.log("saved");
+      this.snackbarService.open('Customer Saved!','close',{
+        duration:5000,
+        verticalPosition:'top',
+        horizontalPosition:'center',
+        direction:'ltr'
+
+      });
+      this.loading=false;
     }).catch(error=>{
       console.log(error);
+      this.loading=false;
     })
 
 

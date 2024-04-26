@@ -1,6 +1,1 @@
-export const environment = {
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  firebaseConfig: {
-
-  }
-};
+export const environment = {};
