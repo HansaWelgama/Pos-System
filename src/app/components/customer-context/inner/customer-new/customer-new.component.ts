@@ -8,6 +8,8 @@ import {finalize, Observable} from "rxjs";
 import {MatProgressBar} from "@angular/material/progress-bar";
 import {AsyncPipe, NgIf} from "@angular/common";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {AngularFireDatabase} from "@angular/fire/compat/database";
+import {AngularFirestore} from "@angular/fire/compat/firestore";
 
 @Component({
   selector: 'app-customer-new',
@@ -27,7 +29,9 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 })
 export class CustomerNewComponent {
 
-  constructor(private storage: AngularFireStorage, private snackbarService: MatSnackBar) {
+  constructor(private storage: AngularFireStorage,
+              private db: AngularFirestore,
+              private snackbarService: MatSnackBar) {
   }
 
   loading: boolean = false;
@@ -61,26 +65,39 @@ export class CustomerNewComponent {
     ).subscribe();
 
     task.then(() => {
-      this.snackbarService.open('Customer Saved!', 'Close', {
-        duration:5000,
-        verticalPosition:'top',
-        horizontalPosition:'end',
-        direction:'ltr'
-      });
-      this.loading = false;
+
+      this.downloadLink.subscribe(res => {
+        let customer = {
+          fullName: this.form.value.fullName,
+          address: this.form.value.address,
+          salary: this.form.value.salary,
+          avatar: res
+        }
+
+        //-----------------------
+        this.db.collection('customers').add(customer)
+          .then((docRef) => {
+            this.snackbarService.open('Customer Saved!', 'Close', {
+              duration: 5000,
+              verticalPosition: 'top',
+              horizontalPosition: 'end',
+              direction: 'ltr'
+            });
+            this.loading = false;
+          }).catch(er => {
+          console.log(er);
+          this.loading = false;
+        })
+//-----------------------
+
+      })
+
     }).catch(error => {
       console.log(error);
       this.loading = false;
     })
 
-    let customer = {
-      fullName: this.form.value.fullName,
-      address: this.form.value.address,
-      salary: this.form.value.salary,
-      avatar: this.selectedAvatar
-    }
 
-    console.log(customer);
   }
 
   onChangeFile(event: any) {

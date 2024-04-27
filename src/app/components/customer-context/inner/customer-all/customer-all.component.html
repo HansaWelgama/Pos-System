@@ -42,7 +42,7 @@
              </td>
             <td>
               <div class="context">
-                <button mat-icon-button color="warn" >
+                <button mat-icon-button color="warn" (click)="deleteCustomer(tempCustomer?.id,tempCustomer?.data.avatar)" >
                   <mat-icon>delete_sweep</mat-icon>
                 </button>
                 &nbsp;
