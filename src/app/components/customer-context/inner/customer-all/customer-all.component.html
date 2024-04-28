@@ -1,60 +1,60 @@
 <div class="container">
   <div class="row">
     <div class="col-12">
-        <table class="table table-hover">
-          <thead>
-          <tr>
-            <th>#</th>
-            <th>name</th>
-            <th>address</th>
-            <th>salary</th>
-            <th>avatar</th>
-            <th>option</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let tempCustomer of customers; index as num">
-            <td>
-              <div class="context">
-                {{num+1}}
-              </div>
-            </td>
-            <td>
-              <div class="context">
-                {{tempCustomer?.data.fullName}}
-              </div>
-             </td>
-            <td>
-              <div class="context">
-                {{tempCustomer?.data.address}}
-              </div>
-              </td>
-            <td>
-              <div class="context">
-                {{tempCustomer?.data.salary | currency:'LKR'}}
-              </div>
-             </td>
-            <td>
-              <div class="context">
-                <img [src]="tempCustomer?.data.avatar" alt="{{tempCustomer?.fullName}}">
+      <table class="table table-hover">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>name</th>
+          <th>address</th>
+          <th>salary</th>
+          <th>avatar</th>
+          <th>option</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let tempCustomer of customers; index as num">
+          <td>
+            <div class="context">
+              {{num+1}}
+            </div>
+          </td>
+          <td>
+            <div class="context">
+              {{tempCustomer?.data.fullName}}
+            </div>
+          </td>
+          <td>
+            <div class="context">
+              {{tempCustomer?.data.address}}
+            </div>
+          </td>
+          <td>
+            <div class="context">
+              {{tempCustomer?.data.salary | currency:'LKR'}}
+            </div>
+          </td>
+          <td>
+            <div class="context">
+              <img [src]="tempCustomer?.data.avatar" alt="{{tempCustomer?.fullName}}">
 
-              </div>
-             </td>
-            <td>
-              <div class="context">
-                <button mat-icon-button color="warn" (click)="deleteCustomer(tempCustomer?.id,tempCustomer?.data.avatar)" >
-                  <mat-icon>delete_sweep</mat-icon>
-                </button>
-                &nbsp;
-                <button mat-icon-button color="primary" routerLink="/dashboard/customers/update/{{tempCustomer?.id}}" >
-                  <mat-icon>edit</mat-icon>
-                </button>
+            </div>
+          </td>
+          <td>
+            <div class="context">
+              <button mat-icon-button color="warn" (click)="deleteCustomer(tempCustomer?.id,tempCustomer?.data.avatar)" >
+                <mat-icon>delete_sweep</mat-icon>
+              </button>
+              &nbsp;
+              <button mat-icon-button color="primary" routerLink="/dashboard/customers/update/{{tempCustomer?.id}}" >
+                <mat-icon>edit</mat-icon>
+              </button>
 
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

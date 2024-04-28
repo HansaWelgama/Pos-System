@@ -1,0 +1,52 @@
+.container{
+  flex-direction: row;
+
+  .first-section{
+    display: flex;
+  }
+  .second-section{
+    display: flex;
+  }
+  .Details{
+    border-radius: 5px;
+    height: 52px;
+  }
+  .context{
+    height: 50px;
+    display: flex;
+    align-items: center;
+
+    .order-img{
+      width: 100px;
+      height: 150px;
+
+    }
+
+  }
+}
+.quantity-container{
+  display: flex;
+  justify-content: flex-end;
+}
+.addCart-btn{
+  display: flex;
+  justify-content: center;
+}
+
+
+.context{
+  height: 50px;
+  display: flex;
+  align-items: center;
+
+  img{
+    width: 40px;
+    height: 40px;
+
+  }
+
+}
+.placeOrder-btn{
+  display: flex;
+  justify-content: flex-end;
+}

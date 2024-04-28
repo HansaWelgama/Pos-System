@@ -1,0 +1,47 @@
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-hover">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Description</th>
+          <th>Quantity on hand</th>
+          <th>Unit price</th>
+          <th>image</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let tempProduct of products; index as num">
+          <td>
+            <div class="context">
+              {{num+1}}
+            </div>
+          </td>
+          <td>
+            <div class="context">
+              {{tempProduct?.data.productDescription}}
+            </div>
+          </td>
+          <td>
+            <div class="context">
+              {{tempProduct?.data.quantityOnHand}}
+            </div>
+          </td>
+          <td>
+            <div class="context">
+              {{tempProduct?.data.unitPrice | currency:'LKR '}}
+            </div>
+          </td>
+          <td>
+            <div class="context">
+              <img [src]="tempProduct?.data.productImage" alt="{{tempProduct?.productImage}}">
+
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

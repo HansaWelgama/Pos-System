@@ -1,0 +1,88 @@
+<form [formGroup]="form" (ngSubmit)="addToCart()">
+  <div class="container">
+    <div class="first-section">
+      <mat-form-field appearance="outline">
+        <mat-label>Select Customer</mat-label>
+        <mat-select formControlName="customer" (selectionChange)="selectCustomer($event.value)">
+          <mat-option>--</mat-option>
+          <mat-option *ngFor="let customer of customers" [value]="customer">
+            {{ customer.data.fullName }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      &nbsp;
+      &nbsp;
+      <mat-chip-set *ngIf="selectedCustomer">
+        <mat-chip class="Details">Address: {{ selectedCustomer?.data.address }}</mat-chip>&nbsp;
+        <mat-chip class="Details">Salary: {{ selectedCustomer?.data.salary | currency:'LKR' }}</mat-chip>
+      </mat-chip-set>
+    </div>
+  </div>
+
+  <br>
+  <br>
+
+  <div class="container">
+    <div class="second-section">
+      <mat-form-field appearance="outline">
+        <mat-label>Select Product</mat-label>
+        <mat-select formControlName="product" (selectionChange)="selectProduct($event.value)">
+          <mat-option>--</mat-option>
+          <mat-option *ngFor="let product of products" [value]="product">
+            {{ product.data.productDescription }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      &nbsp;
+      &nbsp;
+
+    </div>
+    <div class="order-img" *ngIf="selectedProduct">
+      <mat-chip-set>
+        <mat-chip class="Details">Quantity: {{ selectedProduct?.data.quantityOnHand }}</mat-chip>&nbsp;
+        <mat-chip class="Details">Unit price: {{ selectedProduct?.data.unitPrice | currency:'LKR' }}</mat-chip>&nbsp;
+      </mat-chip-set>&nbsp;
+      <img [src]="selectedProduct?.data.productImage" alt="{{ selectedProduct?.data.productDescription || 'No product selected' }}">
+    </div>
+  </div>
+  <br>
+  <br>
+  <div class="container quantity-container">
+    <mat-form-field class="example-full-width" appearance="outline">
+      <input type="number" matInput placeholder="Enter quantity" formControlName="productQuantity">
+    </mat-form-field>
+  </div>
+  <br>
+  <br>
+  <div class="addCart-btn">
+    <button type="submit" mat-flat-button color="primary">Add to Cart</button>
+  </div>
+  <br>
+  <br>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <table class="table table-hover">
+          <thead>
+          <tr>
+            <th>No</th>
+            <th>Customer</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Total Cost</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let item of cartItems; index as num">
+            <td>{{ num + 1 }}</td>
+            <td>{{ item.customerName }}</td>
+            <td>{{ item.productName }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.totalCost | currency:'LKR ' }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</form>
