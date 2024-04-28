@@ -5,6 +5,7 @@ import {MatIcon} from "@angular/material/icon";
 import {MatIconButton} from "@angular/material/button";
 import {RouterLink} from "@angular/router";
 import {AngularFireStorage} from "@angular/fire/compat/storage";
+import {MatColumnDef, MatHeaderCell} from "@angular/material/table";
 
 @Component({
   selector: 'app-customer-all',
@@ -15,12 +16,15 @@ import {AngularFireStorage} from "@angular/fire/compat/storage";
     MatIcon,
     MatIconButton,
     RouterLink,
+    MatColumnDef,
+    MatHeaderCell,
   ],
   templateUrl: './customer-all.component.html',
   styleUrl: './customer-all.component.scss'
 })
 export class CustomerAllComponent implements OnInit{
     customers:any[]=[];
+
     constructor(private  db:AngularFirestore, private storage:AngularFireStorage) {
     }
     ngOnInit(): void {
