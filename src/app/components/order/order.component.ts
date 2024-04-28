@@ -78,20 +78,60 @@ export class OrderComponent implements OnInit {
   addToCart() {
     if (this.form.valid && this.selectedCustomer && this.selectedProduct) {
       const customer = this.selectedCustomer.data;
-      const product = this.selectedProduct.data;
-      const quantity = this.form.get('productQuantity')?.value || 0;
-      const totalCost = quantity * product.unitPrice;
+      const productId = this.selectedProduct.id; // Get the product ID from Firestore
+      const product = this.selectedProduct.data; // Get the product data
+      const quantityToAdd = this.form.get('productQuantity')?.value || 0;
 
-      const cartItem = {
-        customerName: customer.fullName,
-        productName: product.productDescription,
-        quantity: quantity,
-        totalCost: totalCost
-      };
+      // Check if there is enough quantity available
+      if (quantityToAdd <= product.quantityOnHand) {
+        const totalCost = quantityToAdd * product.unitPrice;
 
-      this.cartItems.push(cartItem);
+        // Update product quantity locally
+        product.quantityOnHand -= quantityToAdd;
 
-      this.form.reset();
+        // Update product quantity in Firestore
+        this.db.collection('products').doc(productId).update({
+          quantityOnHand: product.quantityOnHand
+        })
+          .then(() => {
+            console.log('Product quantity updated in Firestore.');
+
+            // Check if the same product for the same customer already exists in the cart
+            const existingCartItemIndex = this.cartItems.findIndex(item =>
+              item.customerName === customer.fullName && item.productName === product.productDescription
+            );
+
+            if (existingCartItemIndex !== -1) {
+              // If product already exists in cart for the same customer, update its quantity and total cost
+              this.cartItems[existingCartItemIndex].quantity += quantityToAdd;
+              this.cartItems[existingCartItemIndex].totalCost += totalCost;
+            } else {
+              // If product doesn't exist in cart for the same customer, add it as a new item
+              const cartItem = {
+                customerName: customer.fullName,
+                productName: product.productDescription,
+                quantity: quantityToAdd,
+                totalCost: totalCost
+              };
+
+              this.cartItems.push(cartItem);
+            }
+
+            // Reset form and selected product
+            this.form.reset();
+            this.selectedProduct = null;
+          })
+          .catch(error => {
+            console.error("Error updating product quantity:", error);
+            // Handle error updating product quantity
+            alert("Error updating product quantity. Please try again later.");
+          });
+      } else {
+        // Notify user that there is not enough quantity available
+        alert('Not enough quantity available for this product.');
+      }
     }
   }
+
 }
+

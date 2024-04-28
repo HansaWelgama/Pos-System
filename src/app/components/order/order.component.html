@@ -1,3 +1,5 @@
+<br>
+<br>
 <form [formGroup]="form" (ngSubmit)="addToCart()">
   <div class="container">
     <div class="first-section">
@@ -79,6 +81,7 @@
             <td>{{ item.productName }}</td>
             <td>{{ item.quantity }}</td>
             <td>{{ item.totalCost | currency:'LKR ' }}</td>
+
           </tr>
           </tbody>
         </table>
