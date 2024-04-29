@@ -10,6 +10,8 @@ import {MatChip, MatChipSet} from "@angular/material/chips";
 import {MatInput} from "@angular/material/input";
 import {MatButton, MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {AngularFireDatabase} from "@angular/fire/compat/database";
 
 @Component({
   selector: 'app-order',
@@ -42,10 +44,13 @@ export class OrderComponent implements OnInit {
   selectedProduct: any;
   cartItems: any[] = [];
 
+
   constructor(
     private db: AngularFirestore,
     private storage: AngularFireStorage,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private snackbarService: MatSnackBar,
+    private firebaseDB: AngularFireDatabase
   ) {
     this.form = this.fb.group({
       customer: ['', Validators.required],
@@ -65,73 +70,76 @@ export class OrderComponent implements OnInit {
         this.products.push({ id: doc.id, data: doc.data() });
       });
     });
+    this.loadCartItems();
   }
-
+  loadCartItems() {
+    if (this.selectedCustomer) {
+      this.db.collection('cartItems', ref => ref.where('customerId', '==', this.selectedCustomer.id))
+        .valueChanges().subscribe((data: any) => {
+        this.cartItems = data;
+      });
+    } else {
+      // If no customer is selected, load all cart items
+      this.db.collection('cartItems').valueChanges().subscribe((data: any) => {
+        this.cartItems = data;
+      });
+    }
+  }
   selectCustomer(customer: any) {
     this.selectedCustomer = customer;
+    this.loadCartItems();
   }
 
   selectProduct(product: any) {
     this.selectedProduct = product;
   }
-
   addToCart() {
     if (this.form.valid && this.selectedCustomer && this.selectedProduct) {
+      const customerId = this.selectedCustomer.id;
+      const productId = this.selectedProduct.id;
       const customer = this.selectedCustomer.data;
-      const productId = this.selectedProduct.id; // Get the product ID from Firestore
-      const product = this.selectedProduct.data; // Get the product data
+      const product = this.selectedProduct.data;
       const quantityToAdd = this.form.get('productQuantity')?.value || 0;
 
-      // Check if there is enough quantity available
       if (quantityToAdd <= product.quantityOnHand) {
         const totalCost = quantityToAdd * product.unitPrice;
 
-        // Update product quantity locally
         product.quantityOnHand -= quantityToAdd;
 
-        // Update product quantity in Firestore
         this.db.collection('products').doc(productId).update({
           quantityOnHand: product.quantityOnHand
         })
           .then(() => {
             console.log('Product quantity updated in Firestore.');
 
-            // Check if the same product for the same customer already exists in the cart
-            const existingCartItemIndex = this.cartItems.findIndex(item =>
-              item.customerName === customer.fullName && item.productName === product.productDescription
-            );
+            const cartItem = {
+              customerId: customerId,
+              productId: productId,
+              customerName: customer.fullName,
+              productName: product.productDescription,
+              quantity: quantityToAdd,
+              totalCost: totalCost
+            };
 
-            if (existingCartItemIndex !== -1) {
-              // If product already exists in cart for the same customer, update its quantity and total cost
-              this.cartItems[existingCartItemIndex].quantity += quantityToAdd;
-              this.cartItems[existingCartItemIndex].totalCost += totalCost;
-            } else {
-              // If product doesn't exist in cart for the same customer, add it as a new item
-              const cartItem = {
-                customerName: customer.fullName,
-                productName: product.productDescription,
-                quantity: quantityToAdd,
-                totalCost: totalCost
-              };
+            // Add cartItem directly to Firestore
+            this.db.collection('cartItems').add(cartItem)
+              .then(() => {
+                console.log('Cart item added to Firestore.');
+              })
+              .catch((error: any) => {
+                console.error('Error adding cart item to Firestore:', error);
+              });
 
-              this.cartItems.push(cartItem);
-            }
-
-            // Reset form and selected product
             this.form.reset();
             this.selectedProduct = null;
           })
           .catch(error => {
             console.error("Error updating product quantity:", error);
-            // Handle error updating product quantity
             alert("Error updating product quantity. Please try again later.");
           });
       } else {
-        // Notify user that there is not enough quantity available
         alert('Not enough quantity available for this product.');
       }
     }
   }
-
 }
-
