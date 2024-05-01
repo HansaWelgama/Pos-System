@@ -1,6 +1,7 @@
 <br>
 <br>
-<form [formGroup]="form" (ngSubmit)="addToCart()">
+<form [formGroup]="form" (ngSubmit)="placeOrder()">
+
   <div class="container">
     <div class="first-section">
       <mat-form-field appearance="outline">
@@ -21,9 +22,7 @@
     </div>
   </div>
 
-  <br>
-  <br>
-
+  <!-- Product Section -->
   <div class="container">
     <div class="second-section">
       <mat-form-field appearance="outline">
@@ -37,7 +36,6 @@
       </mat-form-field>
       &nbsp;
       &nbsp;
-
     </div>
     <div class="order-img" *ngIf="selectedProduct">
       <mat-chip-set>
@@ -47,20 +45,16 @@
       <img [src]="selectedProduct?.data.productImage" alt="{{ selectedProduct?.data.productDescription || 'No product selected' }}">
     </div>
   </div>
-  <br>
-  <br>
+
   <div class="container quantity-container">
     <mat-form-field class="example-full-width" appearance="outline">
       <input type="number" matInput placeholder="Enter quantity" formControlName="productQuantity">
     </mat-form-field>
   </div>
-  <br>
-  <br>
   <div class="addCart-btn">
-    <button [disabled]="form.invalid" type="submit" mat-flat-button color="primary">Add to Cart</button>
+    <button [disabled]="form.invalid || !selectedCustomer || !selectedProduct || orderPlaced" type="button" mat-flat-button color="primary" (click)="addToCart()">Add to Cart</button>
   </div>
-  <br>
-  <br>
+  <!-- Order Summary Table -->
   <div class="container">
     <div class="row">
       <div class="col-12">
@@ -72,6 +66,7 @@
             <th>Product</th>
             <th>Quantity</th>
             <th>Total Cost</th>
+            <th>Action</th>
           </tr>
           </thead>
           <tbody>
@@ -81,11 +76,21 @@
             <td>{{ item.productName }}</td>
             <td>{{ item.quantity }}</td>
             <td>{{ item.totalCost | currency:'LKR ' }}</td>
-
+            <td>
+              <button [disabled]="orderPlaced" mat-icon-button (click)="deleteCartItem(num)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
           </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
+  <br>
+  <br>
+  <div class="addCart-btn">
+    <button *ngIf="placeOrderPressed" [disabled]="orderPlaced" type="submit" mat-flat-button color="primary">Place Order</button>
+  </div>
+
 </form>

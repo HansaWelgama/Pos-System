@@ -80,7 +80,7 @@ export class CustomerNewComponent {
             this.snackbarService.open('Customer Saved!', 'Close', {
               duration: 5000,
               verticalPosition: 'top',
-              horizontalPosition: 'end',
+              horizontalPosition: 'center',
               direction: 'ltr'
             });
             this.loading = false;
