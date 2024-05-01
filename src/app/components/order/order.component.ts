@@ -43,6 +43,9 @@ export class OrderComponent implements OnInit {
   products: any[] = [];
   selectedProduct: any;
   cartItems: any[] = [];
+  tableLoaded: boolean= false;
+  orderPlaced: boolean = false
+  placeOrderPressed: boolean = false;
 
 
   constructor(
@@ -70,30 +73,55 @@ export class OrderComponent implements OnInit {
         this.products.push({ id: doc.id, data: doc.data() });
       });
     });
-    this.loadCartItems();
+
+
   }
-  loadCartItems() {
-    if (this.selectedCustomer) {
-      this.db.collection('cartItems', ref => ref.where('customerId', '==', this.selectedCustomer.id))
-        .valueChanges().subscribe((data: any) => {
-        this.cartItems = data;
-      });
-    } else {
-      // If no customer is selected, load all cart items
-      this.db.collection('cartItems').valueChanges().subscribe((data: any) => {
-        this.cartItems = data;
-      });
-    }
-  }
+
   selectCustomer(customer: any) {
     this.selectedCustomer = customer;
-    this.loadCartItems();
   }
 
   selectProduct(product: any) {
     this.selectedProduct = product;
   }
   addToCart() {
+    if (this.form.valid && this.selectedCustomer && this.selectedProduct) {
+      const customer = this.selectedCustomer.data;
+      const product = this.selectedProduct.data;
+      const quantityToAdd = this.form.get('productQuantity')?.value || 0;
+
+      if (quantityToAdd <= product.quantityOnHand) {
+        const totalCost = quantityToAdd * product.unitPrice;
+
+        // Update the local cartItems array
+        const cartItem = {
+          customerName: customer.fullName,
+          productName: product.productDescription,
+          quantity: quantityToAdd,
+          totalCost: totalCost
+        };
+
+        this.cartItems.push(cartItem);
+        this.snackbarService.open('Added item to the cart!', 'Close', {
+          duration: 5000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center',
+          direction: 'ltr'
+        });
+        this.tableLoaded = true;
+        this.placeOrderPressed = true;
+
+      } else {
+        alert('Not enough quantity available for this product.');
+      }
+    }
+  }
+
+  placeOrder() {
+
+
+    this.tableLoaded = false;
+    this.orderPlaced = true;
     if (this.form.valid && this.selectedCustomer && this.selectedProduct) {
       const customerId = this.selectedCustomer.id;
       const productId = this.selectedProduct.id;
@@ -105,6 +133,7 @@ export class OrderComponent implements OnInit {
         const totalCost = quantityToAdd * product.unitPrice;
 
         product.quantityOnHand -= quantityToAdd;
+        customer.salary -= totalCost;
 
         this.db.collection('products').doc(productId).update({
           quantityOnHand: product.quantityOnHand
@@ -118,28 +147,64 @@ export class OrderComponent implements OnInit {
               customerName: customer.fullName,
               productName: product.productDescription,
               quantity: quantityToAdd,
-              totalCost: totalCost
+              totalCost: totalCost,
+              orderDate: new Date()
             };
 
             // Add cartItem directly to Firestore
-            this.db.collection('cartItems').add(cartItem)
-              .then(() => {
-                console.log('Cart item added to Firestore.');
-              })
-              .catch((error: any) => {
-                console.error('Error adding cart item to Firestore:', error);
-              });
+            if (quantityToAdd>0) {
+              this.db.collection('orders').add(cartItem)
+                .then(() => {
+                  console.log('Cart item added to Firestore.');
+                  this.snackbarService.open('Order Successful!', 'Close', {
+                    duration: 5000,
+                    verticalPosition: 'top',
+                    horizontalPosition: 'center',
+                    direction: 'ltr'
+                  });
+                  this.cartItems = [];
+                  this.form.reset();
+                  this.selectedProduct = null;
+                  // Reset flags
+                  this.placeOrderPressed = false;
+                  this.orderPlaced = false;
+                  // Disable the table after placing the order
+                })
+                .catch((error: any) => {
+                  console.error('Error adding cart item to Firestore:', error);
+                  alert('Error adding cart item to Firestore. Please try again later.');
+                });
 
-            this.form.reset();
-            this.selectedProduct = null;
+            }else{
+              alert('Cannot place an order with an empty cart. Please add items to your cart.');
+              this.cartItems = [];
+              this.form.reset();
+              this.selectedProduct = null;
+              // Reset flags
+              this.placeOrderPressed = false;
+              this.orderPlaced = false;
+              return; // Exit the function if the cart is empty
+            }
           })
           .catch(error => {
-            console.error("Error updating product quantity:", error);
-            alert("Error updating product quantity. Please try again later.");
+            console.error('Error updating product quantity:', error);
+            alert('Error updating product quantity. Please try again later.');
           });
       } else {
         alert('Not enough quantity available for this product.');
       }
+    } else {
+      alert('Please fill in all required fields.');
+    }
+  }
+
+  deleteCartItem(index: number) {
+    if (!this.orderPlaced) {
+      this.cartItems.splice(index, 1);
+      if (this.cartItems.length === 0) {
+        this.placeOrderPressed = false; // Reset cartNotEmpty when cart is empty
+      }
     }
   }
 }
+
